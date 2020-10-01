@@ -589,7 +589,7 @@ if __name__ == '__main__':  # Ensures this is the file being ran
 		bot.load_extension(extension)  # Loades every extension.
 
 
-token = 'NzUzNzg4MDU0MDYxMzE4MTg1.X1rR1A.anaUR2gHtiwZq6288AVx3y1v0JU'
+token = 'no token here'
 bot.run(token)  # Starts the bot
 
 
