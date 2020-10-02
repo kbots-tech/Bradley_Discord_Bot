@@ -568,8 +568,9 @@ async def leaderboard(ctx):
   for f in amounts:
     print('f is: '+f+'\n')
     user = bot.fetch_user(f)
+    print('username is: '+user.display_name)
     try:
-    	leaderboard[user.display_name] = amounts[f]
+    	leaderboard[user.name] = amounts[f]
     except:
         leaderboard[user] = amounts[f]
 
@@ -604,7 +605,7 @@ if __name__ == '__main__':  # Ensures this is the file being ran
 		bot.load_extension(extension)  # Loades every extension.
 
 
-token = 'Token Goes Here'
+token = 'No Token Here'
 bot.run(token)  # Starts the bot
 
 
