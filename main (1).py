@@ -567,7 +567,7 @@ async def leaderboard(ctx):
   leaderboard = {}
   for f in amounts:
     print('f is: '+f+'\n')
-    user = bot.get_user(int(f))
+    user = bot.fetch_user(f)
     try:
     	leaderboard[user.display_name] = amounts[f]
     except:
@@ -575,6 +575,7 @@ async def leaderboard(ctx):
 
   sortedV = sorted(leaderboard.items(),key = lambda t:t[1])
   sortedV.reverse()
+  print(sortedV)
   #print(sortedV)
   await ctx.send("**TRIVIA BOT LEADERBOARD**")
   count = 1
@@ -603,7 +604,7 @@ if __name__ == '__main__':  # Ensures this is the file being ran
 		bot.load_extension(extension)  # Loades every extension.
 
 
-token = 'token goes here'
+token = 'Token Goes Here'
 bot.run(token)  # Starts the bot
 
 
