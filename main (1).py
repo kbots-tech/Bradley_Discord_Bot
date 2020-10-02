@@ -92,6 +92,7 @@ difficulty = 'easy'
 category = 'null'
 answers = []
 difficult = 'null'
+tokenID= '1234'
 
 amounts = {}
 userAnswers = {}
@@ -343,6 +344,7 @@ async def boardgames(ctx):
 
 @bot.command()
 async def videogames(ctx):
+    global userAnswers
     id = str(ctx.message.author.id)
     user = bot.get_user(int(id))
     data = [6]
@@ -471,70 +473,80 @@ def _saveA():
         json.dump(userAnswers, f)
         
 def url_request(value : int):
-    url = 'https://opentdb.com/api.php?amount=1&category='+str(value) +'&type=multiple&token=52bdaf5e50b56672eb2c2395ec3ba0c6c3ad7082de75c074bfed623ffec71168'
-
-  
+    global tokenID
+    url = 'https://opentdb.com/api.php?amount=1&category='+str(value) +'&type=multiple&token='+tokenID
 
     data = [6]
     response = urllib.request.urlopen(url)
     data = json.load(response)
+    print('Data is:')
+    print(data)
     responsecode = data['response_code']
     if str(responsecode) == '4':
-      url2 = 'https://opentdb.com/api_token.php?command=reset&token=52bdaf5e50b56672eb2c2395ec3ba0c6c3ad7082de75c074bfed623ffec71168'
+      url2 = 'https://opentdb.com/api_token.php?command=reset&token='+tokenID
       response2 = urllib.request.urlopen(url2)
       data2 = json.load(response2)
-      #print(data2)
-    print(data['response_code'])
-    question = data['results']
-    for f in question:
-        data[0] = f['category']
-        data[1] = f['difficulty']
-        correctAnswer = f['correct_answer']
-        answers = f['incorrect_answers']
-        data[2] = f['question']
+    elif str(responsecode)== '3':
+        url2 = 'https://opentdb.com/api_token.php?command=request'
+        response2=urllib.request.urlopen(url2)
+        data2 = json.load(response2)
+        tokenID=data2['token']
+        print(tokenID)
+        data = url_request(value)
+        return data
+    else:   
+        print(data['response_code'])
+        question = data['results']
+        for f in question:
+            data[0] = f['category']
+            data[1] = f['difficulty']
+            correctAnswer = f['correct_answer']
+            answers = f['incorrect_answers']
+            data[2] = f['question']
 
-    answers.append(correctAnswer)
+        answers.append(correctAnswer)
 
-    random.shuffle(answers)
-    
-
-    global correct 
-    correct = correctAnswer
-
-    global difficulty
-    difficulty = difficult
-
-    answers[0] = answers[0].replace("&#039;","'")
-    answers[1] = answers[1].replace("&#039;","'")
-    answers[2] = answers[2].replace("&#039;","'")
-    answers[3] = answers[3].replace("&#039;","'")
-
-    if answers[0] == correct:
-      correct = 1
-    if answers[1] == correct:
-      correct = 2
-    if answers[2] == correct:
-      correct = 3
-    if answers[3] == correct:
-      correct = 4
-    
-    answers[0]=answers[0].replace('&amp;','&')
-    answers[1]=answers[1].replace('&amp;','&')
-    answers[2]=answers[2].replace('&amp;','&')
-    answers[3]=answers[3].replace('&amp;','&')
+        random.shuffle(answers)
 
 
-    data[3]=answers[0]
-    data[4]=answers[1]
-    data[5]=answers[2]
-    data[6]=answers[3]
-    data[7]=correct
+        global correct 
+        correct = correctAnswer
+
+        global difficulty
+        difficulty = difficult
+
+        answers[0] = answers[0].replace("&#039;","'")
+        answers[1] = answers[1].replace("&#039;","'")
+        answers[2] = answers[2].replace("&#039;","'")
+        answers[3] = answers[3].replace("&#039;","'")
+
+        if answers[0] == correct:
+          correct = 1
+        if answers[1] == correct:
+          correct = 2
+        if answers[2] == correct:
+          correct = 3
+        if answers[3] == correct:
+          correct = 4
+
+        answers[0]=answers[0].replace('&amp;','&')
+        answers[1]=answers[1].replace('&amp;','&')
+        answers[2]=answers[2].replace('&amp;','&')
+        answers[3]=answers[3].replace('&amp;','&')
 
 
-    data[2]=data[2].replace('&quot;','"')
-    data[2]=data[2].replace('&#039;',"'")
+        data[3]=answers[0]
+        data[4]=answers[1]
+        data[5]=answers[2]
+        data[6]=answers[3]
+        data[7]=correct
 
-    return data
+
+        data[2]=data[2].replace('&quot;','"')
+        data[2]=data[2].replace('&#039;',"'")
+
+        return data
+
 
 
 @bot.event 
@@ -554,13 +566,16 @@ async def on_ready():  # When the bot is ready
 async def leaderboard(ctx):
   leaderboard = {}
   for f in amounts:
-    user = bot.get_user(int(f))
-    #print(user.display_name)
-    leaderboard[user.display_name] = amounts[f]
-    #print(str(amounts[f]))
+    print('f is: '+f+'\n')
+    user = bot.fetch_user(f)
+    try:
+    	leaderboard[user.display_name] = amounts[f]
+    except:
+        leaderboard[user] = amounts[f]
 
   sortedV = sorted(leaderboard.items(),key = lambda t:t[1])
   sortedV.reverse()
+  print(sortedV)
   #print(sortedV)
   await ctx.send("**TRIVIA BOT LEADERBOARD**")
   count = 1
@@ -589,7 +604,7 @@ if __name__ == '__main__':  # Ensures this is the file being ran
 		bot.load_extension(extension)  # Loades every extension.
 
 
-token = 'no token here'
+token = 'Token Goes Here'
 bot.run(token)  # Starts the bot
 
 
